@@ -1,8 +1,9 @@
 streamlit
+joblib
 pandas
 numpy
-joblib
-scikit-learn
+matplotlib
 xgboost
 lightgbm
 catboost
+scikit-learn
