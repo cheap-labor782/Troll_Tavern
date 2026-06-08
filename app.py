@@ -5,20 +5,28 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import matplotlib.font_manager as fm
 
 # ==========================================
-# 0. 修正 Matplotlib 中文亂碼設定
+# 0. 修正雲端 Linux 伺服器中文亂碼設定
 # ==========================================
-# 自動偵測系統並設定對應的中文字型
-import platform
-system_platform = platform.system()
+# 確認字型檔案是否存在（請確保 NotoSansTC-Regular.ttf 已上傳至 GitHub 專案根目錄）
+font_path = "NotoSansTC-Regular.ttf"
 
-if system_platform == "Windows":
-    plt.rcParams['font.family'] = ['Microsoft JhengHei'] # 微軟正黑體
-elif system_platform == "Darwin": # Mac
-    plt.rcParams['font.family'] = ['Arial Unicode MS', 'STHeiti'] # 支援中文的字型
-else: # Linux / Streamlit Cloud
-    plt.rcParams['font.family'] = ['DejaVu Sans', 'sans-serif']
+if os.path.exists(font_path):
+    # 載入自訂字型
+    font_prop = fm.FontProperties(fname=font_path)
+    plt.rcParams['font.family'] = font_prop.get_name()
+    # 註冊字型到 font manager 中
+    fm.fontManager.addfont(font_path)
+else:
+    # 備用方案：如果找不到字型檔，依據系統設定
+    import platform
+    system_platform = platform.system()
+    if system_platform == "Windows":
+        plt.rcParams['font.family'] = ['Microsoft JhengHei']
+    elif system_platform == "Darwin":
+        plt.rcParams['font.family'] = ['Arial Unicode MS']
 
 # 修正負號顯示問題
 plt.rcParams['axes.unicode_minus'] = False 
@@ -90,7 +98,6 @@ with col2:
 st.divider()
 st.header("💰 異族中介估價")
 
-# 圖表函數（已包含中文支援設定）
 def show_analysis_charts():
     st.subheader("📊 市場分析報告")
     
@@ -135,7 +142,6 @@ available_brokers = {k: v for k, v in res.items() if k != "encoder"}
 if available_brokers:
     chosen_broker_name = st.selectbox("請選擇為你引薦任務的中介", list(available_brokers.keys()))
     
-    # 初始化 session_state
     if 'prediction_done' not in st.session_state:
         st.session_state.prediction_done = False
     if 'predicted_salary' not in st.session_state:
@@ -143,11 +149,10 @@ if available_brokers:
     if 'used_broker' not in st.session_state:
         st.session_state.used_broker = ""
     if 'gold' not in st.session_state:
-        st.session_state.gold = 0 
+        st.session_state.gold = 1000 
     if 'bargain_result' not in st.session_state:
         st.session_state.bargain_result = None
    
-    # 點擊主要送出按鈕
     if st.button("⚔️ 送出羊皮紙，評估預期酬勞！"):
         user_input_raw = {
             'jobLocationAt': location_selected,
